@@ -1,0 +1,505 @@
+Index: connector.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/connector.py b/connector.py
+new file mode 100644
+--- /dev/null	(revision 38e00f91b06ad40c608f5ae4247875ffe7a6142c)
++++ b/connector.py	(revision 38e00f91b06ad40c608f5ae4247875ffe7a6142c)
+@@ -0,0 +1,4 @@
++host = "localhost"
++user = "root"
++password = "admin"
++db_name = "mydb"
+\ No newline at end of file
+Index: flask_test.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/flask_test.py b/flask_test.py
+new file mode 100644
+--- /dev/null	(revision 38e00f91b06ad40c608f5ae4247875ffe7a6142c)
++++ b/flask_test.py	(revision 38e00f91b06ad40c608f5ae4247875ffe7a6142c)
+@@ -0,0 +1,68 @@
++from flask import Flask, render_template, request, flash
++import pymysql
++from connector import host,password,user,db_name
++
++
++try:
++    connection = pymysql.connect(
++        host = host,
++        password = password,
++        port=3306,
++        user=user,
++        database=db_name,
++        cursorclass = pymysql.cursors.DictCursor,
++    )
++    print("successfully ")
++    try:
++        connect  = connection.cursor()
++        # create_table = "CREATE TABLE `dildon`(id int AUTO_INCREMENT,"\
++        #         "name varchar(35),"\
++        #         "cost varchar (8),"\
++        #         "PRIMARY KEY(id));"
++        # connect.execute(create_table)
++        weight = '80sm'
++
++        input_data = "INSERT INTO `dildon`(name, cost) VALUES (%s,'20$'),('25sm','25$');"
++        connect.execute(input_data, weight)
++        connection.commit()
++
++        output_data = "SELECT * FROM `dildon` ORDER BY id DESC ;"
++        connect.execute(output_data)
++        out = connect.fetchall()
++        print("-"*40)
++
++        for i in out:
++            print(i['id'],i['name'], '   =  ', i['cost'])
++            print("-"*40)
++
++        # delete = "DROP TABLE `dildon`"
++        # connect.execute(delete)
++    finally:
++        connection.close()
++except Exception as ex:
++    print("Dont connect")
++    print(ex)
++
++app = Flask(__name__)
++app.config['SECRET_KEY']='sdfasdfasd'
++
++@app.route('/')
++def main():
++    return render_template('base.html', title="Главная")
++
++@app.route('/login', methods=["POST", "GET"])
++def login():
++    if request.method == "POST":
++        print(request.form)
++        if len(request.form['name'])>2:
++            flash('Отлично', category='success')
++        else:
++            flash('Что-то ввели неправильно', category='error')
++    return render_template('login.html', title="Авторизация")
++
++@app.errorhandler(404)
++def pageNotFound(error):
++    return render_template('page404.html', title="Ошибка")
++
++if __name__ == "__main__":
++    app.run(debug=True)
+\ No newline at end of file
+Index: static/css/style.css
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/static/css/style.css b/static/css/style.css
+new file mode 100644
+--- /dev/null	(revision 38e00f91b06ad40c608f5ae4247875ffe7a6142c)
++++ b/static/css/style.css	(revision 38e00f91b06ad40c608f5ae4247875ffe7a6142c)
+@@ -0,0 +1,138 @@
++@import url('https://fonts.googleapis.com/css?family=Lato:100&display=swap');
++.hat{
++    background-color: #999999;
++    top: 0;
++    left: 0;
++    width: 100%;
++    position: absolute;
++    height: 7vw;
++
++}
++a{
++    text-decoration: none;
++}
++.hat a{
++    color: initial;
++    font-size: 2vw;
++    padding-right: 3vw;
++}
++.hat a:hover{
++    color: aqua;
++}
++.hat_main{
++    margin: 2vw;
++    float: left;
++    position: absolute;
++}
++.login{
++    margin-top:2vw ;
++    float: right;
++    position: fixed;
++    right: 0;
++}
++.content{
++    min-height: 80vh;
++    width: 80vw;
++    margin-left: 10vw;
++    margin-top: 7vw;
++    box-shadow: 6px 4px 10px 6px gray;
++}
++.form_singIn input{
++    width: 35vw;
++    height: 20px;
++    border: 0;
++    box-shadow: 0 0 15px 1px gray;
++    border-radius: 30px;
++    padding: 15px;
++}
++.form_singIn{
++    padding: 70px 20vw;
++}
++
++
++.container {
++  width: 200px;
++  height: 100px;
++  position: absolute;
++  margin-left: 135px;
++  top: 360px;
++  transform: translate(-60%, -45%);
++  display: flex;
++  justify-content: center;
++  align-items: center;
++}
++
++.center {
++  width: 180px;
++  height: 60px;
++  position: absolute;
++}
++
++.btn {
++  width: 180px;
++  height: 60px;
++  cursor: pointer;
++  background: #5CA4EA;
++  border: 1px solid #91C9FF;
++  outline: none;
++  transition: 1s ease-in-out;
++  box-shadow: 0 0 10px 8px #5CA4EA;
++}
++
++svg {
++  position: absolute;
++  left: 0;
++  top: 0;
++  fill: none;
++  stroke: #fff;
++  stroke-dasharray: 150 480;
++  stroke-dashoffset: 150;
++  transition: 1s ease-in-out;
++}
++
++.btn:hover {
++  transition: 1s ease-in-out;
++  background: #4F95DA;
++}
++
++.btn:hover svg {
++  stroke-dashoffset: -480;
++}
++
++.btn span {
++  color: white;
++  font-size: 18px;
++  font-weight: 100;
++}
++.error404{
++    padding-left: 20px;
++    font-size: 30px;
++    font-family: 'Lato';
++}
++.error_img{
++    width: 50vw;
++    height: auto;
++    box-shadow: 0 0 300px 20px lightgrey;
++    margin-left:20px ;
++    border-radius: 30px;
++}
++.flash{
++    margin-left: 20vw;
++    margin-top: 2vw;
++    position: absolute;
++    padding: 5px;
++    width: 15vw;
++    height: 2vw;
++    font-family: 'Lato', sans-serif;
++    border-radius: 15px;
++}
++.flash.success {
++         border: 1px solid #21DB56;
++         background: #AEFFC5;
++        box-shadow: 0 0 5px 3px #AEFFC5;
++}
++.flash.error {
++         border: 1px solid #FF4343;
++         background: #FF9C9C;
++        box-shadow: 0 0 5px 3px #FF9C9C;
++}
+\ No newline at end of file
+Index: templates/base.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/templates/base.html b/templates/base.html
+new file mode 100644
+--- /dev/null	(revision 38e00f91b06ad40c608f5ae4247875ffe7a6142c)
++++ b/templates/base.html	(revision 38e00f91b06ad40c608f5ae4247875ffe7a6142c)
+@@ -0,0 +1,31 @@
++<!DOCTYPE html>
++<html lang="en">
++<head>
++    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}"/>
++    <meta charset="UTF-8">
++    <title>{{title}}</title>
++</head>
++<body>
++<div class="hat">
++    <div class="hat_main">
++        <a href="{{url_for('main')}}">Главная</a>
++        <a>|</a>
++        <a href="#">Контакты</a>
++        <a>|</a>
++        <a href="#">Категории</a>
++    </div>
++    <div class="login">
++        <a href="{{url_for('login')}}">SingIn</a>
++        <a>|</a>
++        <a href="#">SingUp</a>
++    </div>
++</div>
++
++<div class="content">
++    {% block content %}
++    {% endblock %}
++</div>
++
++
++</body>
++</html>
+\ No newline at end of file
+Index: templates/login.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/templates/login.html b/templates/login.html
+new file mode 100644
+--- /dev/null	(revision 38e00f91b06ad40c608f5ae4247875ffe7a6142c)
++++ b/templates/login.html	(revision 38e00f91b06ad40c608f5ae4247875ffe7a6142c)
+@@ -0,0 +1,28 @@
++{% extends 'base.html' %}
++
++{% block content %}
++
++{% for cat, msg in get_flashed_messages(True) %}
++    <div class="flash {{cat}}">{{msg}}</div>
++{% endfor %}
++
++<form method="post">
++    <div class="form_singIn">
++        <p><input placeholder="...Name.." name="name" type="text" value="" required></p>
++        <p><input placeholder="...Password.." name="password" type="password" value="" required></p>
++        <div class="container">
++                <div class="center">
++                  <button class="btn">
++                    <svg width="180px" height="60px" viewBox="0 0 180 60" class="border">
++                      <polyline points="179,1 179,59 1,59 1,1 179,1" class="bg-line" />
++                      <polyline points="179,1 179,59 1,59 1,1 179,1" class="hl-line" />
++                    </svg>
++                    <span>Sing In</span>
++                  </button>
++                </div>
++            </div>
++
++    </div>
++</form>
++
++{% endblock %}
+\ No newline at end of file
+Index: templates/page404.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/templates/page404.html b/templates/page404.html
+new file mode 100644
+--- /dev/null	(revision 38e00f91b06ad40c608f5ae4247875ffe7a6142c)
++++ b/templates/page404.html	(revision 38e00f91b06ad40c608f5ae4247875ffe7a6142c)
+@@ -0,0 +1,7 @@
++{% extends 'base.html' %}
++
++{% block content %}
++<h1 class="error404">Upss....</h1>
++<img class="error_img" src="https://howfix.net/wp-content/uploads/2018/02/sIaRmaFSMfrw8QJIBAa8mA-article.png">
++
++{% endblock %}
+\ No newline at end of file
+Index: test.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/test.py b/test.py
+new file mode 100644
+--- /dev/null	(revision 38e00f91b06ad40c608f5ae4247875ffe7a6142c)
++++ b/test.py	(revision 38e00f91b06ad40c608f5ae4247875ffe7a6142c)
+@@ -0,0 +1,71 @@
++from selenium import webdriver
++from bs4 import BeautifulSoup
++import requests
++import csv
++
++# driver = webdriver.Firefox()
++# driver.get("url")
++# element = driver.find_element_by_css_selector()
++# element.click()
++
++headers = {
++    "Accept" : "*/*",
++    "User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36"
++}
++url = "https://myfin.by/currency/rechitsa"
++
++req = requests.get(url, headers=headers)
++
++src = req.text
++
++# with open('index.html', 'w', encoding="utf-8")as file:
++#     file.write(src)
++
++# with open("index.html", 'r', encoding="utf-8") as file:
++#     src = file.read()
++
++soup = BeautifulSoup(src, "lxml")
++print("-"*50)
++
++hat_bank = soup.find(class_='head-sort arrow')
++print(hat_bank.text)
++
++hat_currency = soup.find_all('th', class_='cur-name')
++print("-"*50)
++print(hat_currency[0].text)
++for i in hat_currency:
++    print(i.text)
++
++
++
++product_info = []
++    for item in products_data:
++        product_tds = item.find_all("td")
++
++        title = product_tds[0].find("a").text
++        calories = product_tds[1].text
++        proteins = product_tds[2].text
++        fats = product_tds[3].text
++        carbohydrates = product_tds[4].text
++
++        product_info.append(
++            {
++                "Title": title,
++                "Calories": calories,
++                "Proteins": proteins,
++                "Fats": fats,
++                "Carbohydrates": carbohydrates
++            }
++        )
++
++        with open(f"data/{count}_{category_name}.csv", "a", encoding="utf-8") as file:
++            writer = csv.writer(file)
++            writer.writerow(
++                (
++                    title,
++                    calories,
++                    proteins,
++                    fats,
++                    carbohydrates
++                )
++            )
+\ No newline at end of file
+Index: test.yaml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/test.yaml b/test.yaml
+--- a/test.yaml	(revision bebec96cf2ab5ea03436088e1c9850b5e7e83c14)
++++ b/test.yaml	(revision 38e00f91b06ad40c608f5ae4247875ffe7a6142c)
+@@ -1,72 +1,0 @@
+-- cost: 25$
+-  id: 24
+-  name: 25sm
+-- cost: 20$
+-  id: 23
+-  name: 80sm
+-- cost: 25$
+-  id: 22
+-  name: 25sm
+-- cost: 20$
+-  id: 21
+-  name: 80sm
+-- cost: 25$
+-  id: 20
+-  name: 25sm
+-- cost: 20$
+-  id: 19
+-  name: 80sm
+-- cost: 25$
+-  id: 18
+-  name: 25sm
+-- cost: 20$
+-  id: 17
+-  name: 80sm
+-- cost: 25$
+-  id: 16
+-  name: 25sm
+-- cost: 20$
+-  id: 15
+-  name: 80sm
+-- cost: 25$
+-  id: 14
+-  name: 25sm
+-- cost: 20$
+-  id: 13
+-  name: 80sm
+-- cost: 25$
+-  id: 12
+-  name: 25sm
+-- cost: 20$
+-  id: 11
+-  name: 80sm
+-- cost: 25$
+-  id: 10
+-  name: 25sm
+-- cost: 20$
+-  id: 9
+-  name: 80sm
+-- cost: 25$
+-  id: 8
+-  name: 25sm
+-- cost: 20$
+-  id: 7
+-  name: 50sm
+-- cost: 25$
+-  id: 6
+-  name: 25sm
+-- cost: 20$
+-  id: 5
+-  name: 50sm
+-- cost: 25$
+-  id: 4
+-  name: 25sm
+-- cost: 20$
+-  id: 3
+-  name: null
+-- cost: 25$
+-  id: 2
+-  name: 25sm
+-- cost: 20$
+-  id: 1
+-  name: null
