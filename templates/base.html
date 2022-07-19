@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}"/>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+</head>
+<body>
+<div class="hat">
+    <div class="hat_main">
+        <a href="{{url_for('main')}}">Главная</a>
+        <a>|</a>
+        <a href="#">Контакты</a>
+        <a>|</a>
+        <a href="#">Категории</a>
+    </div>
+    <div class="login">
+        <a href="{{url_for('login')}}">SingIn</a>
+        <a>|</a>
+        <a href="#">SingUp</a>
+    </div>
+</div>
+
+<div class="content">
+    {% block content %}
+    {% endblock %}
+</div>
+
+
+</body>
+</html>
