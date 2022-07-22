@@ -54,6 +54,7 @@ a{
   width: 200px;
   height: 100px;
   position: absolute;
+    margin-top: 50px;
   margin-left: 135px;
   top: 360px;
   transform: translate(-60%, -45%);
@@ -221,8 +222,9 @@ button1:hover::before, button:focus::before {
   }
 }
 .add_description{
-    width: 37vw;
+    width: 35vw;
     height: 150px;
+    padding: 2vw;
     margin-left: 20vw;
     border: 0;
     box-shadow: 0 0 15px 1px gray;

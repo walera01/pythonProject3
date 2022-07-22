@@ -1,43 +1,62 @@
-from flask import Flask, render_template, request, flash
-import pymysql
-from connector import host,password,user,db_name
+from flask import Flask, render_template, request, flash, g
+import sqlite3
+import os
 
-def con_sql():
-    try:
-        connection = pymysql.connect(
-            host = host,
-            password = password,
-            port=3306,
-            user=user,
-            database=db_name,
-            cursorclass = pymysql.cursors.DictCursor,
-        )
-        print("Connect")
-        connect = connection.cursor()
-        return connection
-    except Exception as ex:
-        return "Dont connect"
+# конфигурация
+from FDataBase import FDataBase
 
-def close_conect(connection):
-    connection.close()
+DATABASE = '/tmp/flsite.db'
+DEBUG = True
+SECRET_KEY = 'fdgfh78@#5?>gfhf89dx,v06k'
+USERNAME = 'admin'
+PASSWORD = '123'
+
 
 app = Flask(__name__)
-app.config['SECRET_KEY']='sdfasdfasd'
+app.config.from_object(__name__)
+app.config.update(dict(DATABASE=os.path.join(app.root_path,'flsite.db')))
 
-@app.route('/add')
+
+def connect_db():
+    conn = sqlite3.connect(app.config['DATABASE'])
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def create_db():
+    """Создание таблиц в БД"""
+    db = connect_db()
+    with app.open_resource('sq_db.sql', mode='r') as f:
+        db.cursor().executescript(f.read())
+    db.commit()
+    db.close()
+
+def get_db():
+    """СОЕДИНЕНИЕ С ДБ ЕСЛИ ЕГО ЕЩЁ НЕТ"""
+    if not hasattr(g, 'link_db'):
+        g.link_db = connect_db()
+    return g.link_db
+
+@app.teardown_appcontext
+def closer_db(error):
+    """ЗАКРЫВАЕМ СОЕДИНЕНИЕ С ДБ"""
+    if hasattr(g, 'link_db'):
+        g.link_db.close()
+
+
+@app.route('/add', methods=['POST', 'GET'])
 def add_db():
-    connection = con_sql()
-    connect = connection.cursor()
-    try:
-        create_table = "CREATE TABLE IF NOT EXISTS `product`(id int AUTO_INCREMENT,"\
-                "name varchar(255)," \
-                "description varchar(35000)," \
-                "cost varchar (8)," \
-                "name varchar(35)," \
-                "PRIMARY KEY(id));"
-        connect.execute(create_table)
-    except:
-        print("Error", Exception)
+    db = get_db()
+    dbase = FDataBase(db)
+    if request.method == "POST":
+        if len(request.form['name']) > 4 and request.form['prise'] and len(request.form['description'])>10:
+            print(request.form['name'], request.form['prise'], request.form['description'])
+            res = dbase.addPost(request.form['name'], request.form['prise'], request.form['description'])
+            if not res:
+                flash('Error addPost', category='error')
+            else:
+                flash("Excelent",  category='success')
+        else:
+            flash('smoll description', category='error')
 
     return render_template('add.html', title="Добавление записи")
 
