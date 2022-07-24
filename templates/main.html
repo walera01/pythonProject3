@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% for i in allpost %}
+    <h1>{{i.name}}</h1>
+    <p>{{i.prise}}</p>
+{% endfor %}
+
+{% endblock %}

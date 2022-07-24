@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, g
+from flask import Flask, render_template, request, flash, g, abort
 import sqlite3
 import os
 
@@ -62,7 +62,11 @@ def add_db():
 
 @app.route('/')
 def main():
-    return render_template('base.html', title="Главная")
+    db = get_db()
+    dbase = FDataBase(db)
+    allpost = dbase.getAllPost()
+
+    return render_template('main.html',allpost=allpost, title="Главная")
 
 @app.route('/login', methods=["POST", "GET"])
 def login():
@@ -77,6 +81,20 @@ def login():
 @app.errorhandler(404)
 def pageNotFound(error):
     return render_template('page404.html', title="Ошибка")
+
+@app.route('/post/<int:id_post>')
+def showPost(id_post):
+    db = get_db()
+    dbase = FDataBase(db)
+    name, prise, description = dbase.getPost(id_post)
+    if not name:
+        abort(404)
+    content={
+        'name':name,
+        'prise': prise,
+        'description':description
+    }
+    return render_template('post.html', content=content )
 
 
 
