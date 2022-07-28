@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, flash, g, abort
 import sqlite3
 import os
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # конфигурация
 from FDataBase import FDataBase
@@ -36,6 +37,13 @@ def get_db():
         g.link_db = connect_db()
     return g.link_db
 
+dbase = None
+@app.before_request
+def before_request():
+    global dbase
+    db = get_db()
+    dbase = FDataBase(db)
+
 @app.teardown_appcontext
 def closer_db(error):
     """ЗАКРЫВАЕМ СОЕДИНЕНИЕ С ДБ"""
@@ -45,8 +53,6 @@ def closer_db(error):
 
 @app.route('/add', methods=['POST', 'GET'])
 def add_db():
-    db = get_db()
-    dbase = FDataBase(db)
     if request.method == "POST":
         if len(request.form['name']) > 4 and request.form['prise'] and len(request.form['description'])>10:
             print(request.form['name'], request.form['prise'], request.form['description'])
@@ -62,21 +68,34 @@ def add_db():
 
 @app.route('/')
 def main():
-    db = get_db()
-    dbase = FDataBase(db)
     allpost = dbase.getAllPost()
-
     return render_template('main.html',allpost=allpost, title="Главная")
 
 @app.route('/login', methods=["POST", "GET"])
 def login():
     if request.method == "POST":
-        print(request.form)
-        if len(request.form['name'])>2:
-            flash('Отлично', category='success')
-        else:
-            flash('Что-то ввели неправильно', category='error')
+
     return render_template('login.html', title="Авторизация")
+
+@app.route('/register', methods=["POST", "GET"])
+def register():
+    if request.method == "POST":
+        if len(request.form['name'])>2:
+            if request.form['password'] == request.form['password_again']:
+                if dbase.chekEmail(request.form['email']):
+                    res = dbase.addUser(request.form['name'], generate_password_hash(request.form['password']), request.form['email'])
+                    if res:
+                        flash('Вы зарегистрированы', category='success')
+                    else:
+                        flash("Что-то пошло не так", category="error")
+                else:
+                    flash('Такой email существует', category='error')
+            else:
+                flash('Пароли не совпадают', category='error')
+        else:
+            flash('Имя слишком короткое', category='error')
+    return render_template('register.html', title="Авторизация")
+
 
 @app.errorhandler(404)
 def pageNotFound(error):
@@ -84,8 +103,7 @@ def pageNotFound(error):
 
 @app.route('/post/<int:id_post>')
 def showPost(id_post):
-    db = get_db()
-    dbase = FDataBase(db)
+
     name, prise, description = dbase.getPost(id_post)
     if not name:
         abort(404)

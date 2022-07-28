@@ -51,10 +51,11 @@ a{
 
 
 .container {
+
   width: 200px;
   height: 100px;
   position: absolute;
-    margin-top: 50px;
+    margin-block: 80px;
   margin-left: 135px;
   top: 360px;
   transform: translate(-60%, -45%);
@@ -122,20 +123,22 @@ svg {
     margin-top: 2vw;
     position: absolute;
     padding: 5px;
-    width: 15vw;
+    min-width: 15vw;
     height: 2vw;
     font-family: 'Lato', sans-serif;
     border-radius: 15px;
 }
 .flash.success {
-         border: 1px solid #21DB56;
-         background: #AEFFC5;
-        box-shadow: 0 0 5px 3px #AEFFC5;
+    border: 1px solid #21DB56;
+    background: #AEFFC5;
+    box-shadow: 0 0 5px 3px #AEFFC5;
+
 }
 .flash.error {
-         border: 1px solid #FF4343;
-         background: #FF9C9C;
-        box-shadow: 0 0 5px 3px #FF9C9C;
+    border: 1px solid #FF4343;
+    background: #FF9C9C;
+    box-shadow: 0 0 5px 3px #FF9C9C;
+
 }
 
 .wrap {
@@ -147,7 +150,7 @@ svg {
 }
 
 .button1 {
-  min-width: 300px;
+  min-width: 355px;
   min-height: 60px;
   font-family: 'Nunito', sans-serif;
   font-size: 22px;
@@ -163,7 +166,7 @@ background: linear-gradient(90deg, rgba(129,230,217,1) 0%, rgba(79,209,197,1) 10
   transition: all 0.3s ease-in-out 0s;
   cursor: pointer;
   outline: none;
-  position: relative;
+  position: fixed;
   padding: 10px;
   }
 

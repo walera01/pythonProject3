@@ -45,3 +45,36 @@ class FDataBase:
         except sqlite3.Error as e:
             print("Error output"+str(e))
         return (False, False)
+
+
+    def addUser(self, name, password, email):
+        try:
+            self.__cur.execute("INSERT INTO users VALUES(NULL, ?, ?, ?)",(name, password, email))
+            self.__db.commit()
+            print("ok")
+        except sqlite3.Error as e:
+            print("Error add "+str(e))
+            return False
+        return True
+
+    def chekEmail(self, email):
+        try:
+            self.__cur.execute(f"SELECT email FROM users WHERE email = (?) ", (email,))
+            res = self.__cur.fetchone()
+            if res:
+                return False
+        except sqlite3.Error as e:
+            print("Error output"+str(e))
+            return False
+        return (True)
+
+    def login(self, email, password):
+        try:
+            self.__cur.execute(f"SELECT email, password FROM users WHERE email = (?), password = ? ", (email,password))
+            res = self.__cur.fetchone()
+            if res:
+                return False
+        except sqlite3.Error as e:
+            print("Error output"+str(e))
+            return False
+        return (True)
