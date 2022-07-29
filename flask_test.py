@@ -1,6 +1,9 @@
-from flask import Flask, render_template, request, flash, g, abort
+from flask import Flask, render_template, request, flash, g, abort, redirect, url_for
 import sqlite3
 import os
+from UserLogin import UserLogin
+
+from flask_login import LoginManager, login_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # конфигурация
@@ -17,6 +20,15 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.update(dict(DATABASE=os.path.join(app.root_path,'flsite.db')))
 
+
+login_manager = LoginManager(app)
+
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    print("load user")
+    return UserLogin().fromDB(user_id, dbase)
 
 def connect_db():
     conn = sqlite3.connect(app.config['DATABASE'])
@@ -74,8 +86,14 @@ def main():
 @app.route('/login', methods=["POST", "GET"])
 def login():
     if request.method == "POST":
-
+        user = dbase.getUserByEmail(request.form['email'])
+        if user and check_password_hash(user['password'], request.form['password']):
+            userlogin = UserLogin().create(user)
+            login_user(userlogin)
+            return redirect(url_for('main'))
+        flash("wrong password", category="error")
     return render_template('login.html', title="Авторизация")
+
 
 @app.route('/register', methods=["POST", "GET"])
 def register():
@@ -102,6 +120,7 @@ def pageNotFound(error):
     return render_template('page404.html', title="Ошибка")
 
 @app.route('/post/<int:id_post>')
+@login_required
 def showPost(id_post):
 
     name, prise, description = dbase.getPost(id_post)
