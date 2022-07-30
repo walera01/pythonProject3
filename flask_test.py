@@ -3,7 +3,7 @@ import sqlite3
 import os
 from UserLogin import UserLogin
 
-from flask_login import LoginManager, login_user, login_required
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # конфигурация
@@ -22,7 +22,9 @@ app.config.update(dict(DATABASE=os.path.join(app.root_path,'flsite.db')))
 
 
 login_manager = LoginManager(app)
-
+login_manager.login_view = 'login'    #перенаправление если неавторизованный переходит на запрещенную страницу
+login_manager.login_message = "Autorization for access"  #сообщение при переходе на страницу для зарегестрированных
+login_manager.login_message_category = 'success'
 
 
 @login_manager.user_loader
@@ -89,8 +91,9 @@ def login():
         user = dbase.getUserByEmail(request.form['email'])
         if user and check_password_hash(user['password'], request.form['password']):
             userlogin = UserLogin().create(user)
-            login_user(userlogin)
-            return redirect(url_for('main'))
+            rm = True if request.form.get('remainme') else False  # запоминание сохранения пользователя
+            login_user(userlogin, remember=rm)
+            return redirect(request.args.get("next") or url_for('main')) #смотрит с какого урл перенаправило и после авторизации туда и отправляет
         flash("wrong password", category="error")
     return render_template('login.html', title="Авторизация")
 
@@ -133,7 +136,19 @@ def showPost(id_post):
     }
     return render_template('post.html', content=content )
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash("Logout successfull", category="success")
+    return redirect(url_for('login'))
 
+
+@app.route('/profile')
+@login_required
+def profile():
+    return f"""<a href="{url_for('logout')}">Выйти из профиля</a>
+                user info: {current_user.get_id()}"""
 
 if __name__ == "__main__":
     app.run(debug=True)
