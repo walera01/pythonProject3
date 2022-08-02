@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, g, abort, redirect, url_for
+from flask import Flask, render_template, request, flash, g, abort, redirect, url_for, make_response
 import sqlite3
 import os
 from UserLogin import UserLogin
@@ -14,6 +14,7 @@ DEBUG = True
 SECRET_KEY = 'fdgfh78@#5?>gfhf89dx,v06k'
 USERNAME = 'admin'
 PASSWORD = '123'
+MAX_CONTENT_LENGTH = 10024 * 10024
 
 
 app = Flask(__name__)
@@ -107,6 +108,7 @@ def register():
                     res = dbase.addUser(request.form['name'], generate_password_hash(request.form['password']), request.form['email'])
                     if res:
                         flash('Вы зарегистрированы', category='success')
+                        return redirect(url_for("login"))
                     else:
                         flash("Что-то пошло не так", category="error")
                 else:
@@ -143,12 +145,31 @@ def logout():
     flash("Logout successfull", category="success")
     return redirect(url_for('login'))
 
+@app.route("/userava")
+@login_required
+def userava():
+    img = current_user.getAvatar(app)
+    print(img,"--------------------")
+    if not img:
+        return ""
+    print(img)
+    h = make_response(img)
+    h.headers['Content-Type'] = 'image/png'
+    return h
+
+@app.route("/upload")
+@login_required
+def upload():
+    return
+
+
 
 @app.route('/profile')
 @login_required
 def profile():
-    return f"""<a href="{url_for('logout')}">Выйти из профиля</a>
-                user info: {current_user.get_id()}"""
+    return render_template("profile.html", title="User")
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

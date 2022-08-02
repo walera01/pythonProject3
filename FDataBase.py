@@ -49,7 +49,7 @@ class FDataBase:
 
     def addUser(self, name, password, email):
         try:
-            self.__cur.execute("INSERT INTO users VALUES(NULL, ?, ?, ?)",(name, password, email))
+            self.__cur.execute("INSERT INTO users VALUES(NULL, ?, ?, ?, NULL)",(name, password, email))
             self.__db.commit()
             print("ok")
         except sqlite3.Error as e:
